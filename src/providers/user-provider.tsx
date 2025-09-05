@@ -27,7 +27,6 @@ function UserProvider({ children }: { children: ReactNode}) {
                 }})
 
                 setUserid(response.data.id)
-                console.log(response.data.id)
             } catch (err: unknown) {
                 if (axios.isAxiosError(err)) {
                     setError(err.message);
