@@ -1,6 +1,7 @@
 'use client'
 import { generateRandomString, sha256, base64encode } from '@/utils/auth/tools'
-import { useEffect } from 'react'
+import { useEffect, useContext } from 'react'
+import { AuthContext } from '@/providers/auth-provider'
 
 async function getToken(code: any) {
   // stored in the previous step
@@ -31,12 +32,15 @@ async function getToken(code: any) {
 
   const body = await fetch(url, payload);
   const response = await body.json();
+  const user_access_token = response.access_token;
 
-  localStorage.setItem('access_token', response.access_token);
+  localStorage.setItem('access_token', user_access_token);
+  return user_access_token
 }
 
 
 export default function LoginButton() {
+  const { setAccessToken } = useContext(AuthContext);
 
   const authorize = async () => {
     const codeVerifier  = generateRandomString(64);
@@ -74,7 +78,8 @@ export default function LoginButton() {
         const code = urlParams.get("code");
         
         if (code) {
-          await getToken(code);
+          const user_access_token = await getToken(code);
+          setAccessToken(user_access_token)
         }
 
         window.history.replaceState({}, document.title, window.location.pathname);
