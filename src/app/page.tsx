@@ -3,7 +3,7 @@
 import Header from "@/components/header/header";
 import LoginButton from "@/components/auth/login";
 import CodeEditor from "@/components/panes/code-editor"
-import Console from "@/components/panes/console"
+import SearchArea from "@/components/panes/search"
 import OutputPlaylist from "@/components/panes/output-playlist"
 import UserPlaylistView from "@/components/panes/user-playlist-view"
 import LogoutButton from '@/components/auth/logout'
@@ -35,7 +35,7 @@ export default function Home() {
               <UserPlaylistView />
             </div>
             <div className="border">
-              <Console />
+              <SearchArea />
             </div>
           </div>
         </div>
