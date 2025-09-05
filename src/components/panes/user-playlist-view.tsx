@@ -2,17 +2,16 @@ import { AuthContext } from "@/providers/auth-provider"
 import { useContext, useState, useEffect } from "react"
 import { Playlist } from "@/types/playlist";
 import axios from 'axios';
-import { UserContext } from "@/providers/user-provider";
 
 export default function UserPlaylistView() {
-    const { access_token } = useContext(AuthContext)
-    const { userid } = useContext(UserContext)
+    const { access_token, userid } = useContext(AuthContext)
     const [data, setData] = useState<Playlist[] | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        
         const fetchUserPlaylists = async () => {
+          if (!access_token) return
           try {
             const response = await axios.get<{ items: Playlist[] }>(
             `https://api.spotify.com/v1/users/${userid}/playlists`,
@@ -28,20 +27,13 @@ export default function UserPlaylistView() {
             } else {
                 setError("An unexpected error occurred");
             }
-          } finally {
-            setLoading(false);
-          }
-        };
+          }};
 
-        if (access_token && userid) {
-            fetchUserPlaylists();
-        } else {
-            setLoading(false);
-        }
+
+        fetchUserPlaylists();
       }, [access_token, userid]);
     
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <>
