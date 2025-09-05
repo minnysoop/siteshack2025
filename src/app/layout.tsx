@@ -1,5 +1,6 @@
 import "./globals.css";
 import AuthProvider from "@/providers/auth-provider";
+import UserProvider from "@/providers/user-provider";
 
 export default function RootLayout({
   children,
@@ -8,10 +9,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-        <AuthProvider>
-      <body className="bg-gray-800 text-white">
-        {children}
-      </body>
+      <AuthProvider>
+        <UserProvider>
+          <body className="bg-gray-800 text-white">
+            {children}
+          </body>
+        </UserProvider>
       </AuthProvider>
     </html>
   );
