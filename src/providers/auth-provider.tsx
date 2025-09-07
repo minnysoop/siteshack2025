@@ -28,14 +28,23 @@ function AuthProvider({ children }: { children: ReactNode}) {
 
     useEffect(() => {
       const storedToken = localStorage.getItem('access_token');
+      if (storedToken) {
+        console.log("Loaded token from localStorage:", storedToken);
+        setAccessToken(storedToken);
+      }
+    }, []);
 
-      const getUserProfile = async (access_token: string) => {
+    useEffect(() => {
+      if (!access_token) return;
+      
+      const getUserProfile = async () => {
           try {
             const response = await axios.get<UserProfile>("https://api.spotify.com/v1/me", {
                 headers: {
                 Authorization: `Bearer ${access_token}`
                 }})
             setUserid(response.data.id)
+            setError(undefined);
           } catch (err: unknown) {
                 if (axios.isAxiosError(err)) {
                     setError(err.message);
@@ -44,12 +53,8 @@ function AuthProvider({ children }: { children: ReactNode}) {
                 }
             }
         }
-
-      if (storedToken) {
-        console.log(storedToken)
-        getUserProfile(storedToken)
-        setAccessToken(storedToken)
-      }
+      
+      getUserProfile()
     },[access_token])
 
     return (

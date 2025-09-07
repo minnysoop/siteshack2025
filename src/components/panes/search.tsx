@@ -5,7 +5,7 @@ import { useState, useEffect, useContext } from "react"
 import { AuthContext } from "@/providers/auth-provider"
 
 import axios from 'axios'
-import { Track, Tracks } from "@/types/track"
+import { Track } from "@/types/track"
 
 export default function Search() {
     const [query, setQuery] = useState("")
