@@ -50,34 +50,37 @@ export default function Search() {
     }
 
     return (
-        <div className="relative w-full">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-            />
+        <div className="flex flex-col h-full">
+            <div className="relative sticky p-2">
+                <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-white" size={18} />
+                <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full pl-10 border border-gray-300 rounded p-2"
+                />
+                {error && <p className="text-red-500 mt-1">{error}</p>}
+            </div>
 
-            {error && <p className="text-red-500 mb-2">{error}</p>}
-
-            {tracks.length > 0 && (
-                <ul className="space-y-2">
-                    {tracks.map(track => (
-                        <li key={track.id} onClick={async () => {await copyTrackId(track.id)}} className="flex items-center space-x-3 p-2 border rounded hover:bg-gray-100">
-                            {track.album.images[0] && (
-                                <img src={track.album.images[0].url} alt={track.name} className="w-12 h-12 object-cover rounded" />
-                            )}
-                            <div>
-                                <p className="font-medium">{track.name}</p>
-                                <p className="text-sm text-gray-500">
-                                    {track.artists.map(a => a.name).join(", ")} — {track.album.name}
-                                </p>
-                            </div>
-                        </li>
-                    ))}
-                </ul>)}
+            <div className="flex-1 max-h-[350px] overflow-y-auto space-y-2 text-white m-2 border rounded">
+                {query && tracks.map(track => (
+                    <li key={track.id} 
+                        onClick={async () => { await copyTrackId(track.id) }}
+                        className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 hover:text-black hover:opacity-80 cursor-pointer"
+                    >
+                        {track.album.images[0] && (
+                            <img src={track.album.images[0].url} alt={track.name} className="w-12 object-cover rounded" />
+                        )}
+                        <div>
+                            <p className="font-medium">{track.name}</p>
+                            <p className="text-sm">
+                                {track.artists.map(a => a.name).join(", ")} — {track.album.name}
+                            </p>
+                        </div>
+                    </li>
+                ))}
+            </div>
         </div>
     )
 }

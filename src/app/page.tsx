@@ -24,18 +24,18 @@ export default function Home() {
             {access_token ? <LogoutButton /> : <LoginButton />}
 
           </div>
-          <div className="flex-1 grid grid-cols-2 grid-rows-2">
-            <div className="border">
-              <OutputPlaylist />
+          <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-2">
+            <div>
+              <SearchArea />
             </div>
-            <div className="border">
+            <div className="border border-[#1E1E1E] rounded-lg bg-[#1E1E1E]">
               <CodeEditor />
             </div>
-            <div className="border">
+            <div className="border rounded-lg">
               <UserPlaylistView />
             </div>
-            <div className="border">
-              <SearchArea />
+            <div className="border rounded-lg">
+              <OutputPlaylist />
             </div>
           </div>
         </div>
