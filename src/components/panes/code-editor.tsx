@@ -18,9 +18,9 @@ export default function CodeEditor() {
                     <Play size={16} /> Execute
                 </button>
             </div>
-            <div className="flex flex-col h-full p-2">
+            <div className="flex flex-col h-full">
                 <Editor
-                    height="400px"
+                    height="355px"
                     theme="vs-dark"
                     value={code}
                     onChange={(value) => setCode(value || "")}

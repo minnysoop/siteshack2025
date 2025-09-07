@@ -63,7 +63,7 @@ export default function Search() {
                 {error && <p className="text-red-500 mt-1">{error}</p>}
             </div>
 
-            <div className="flex-1 max-h-[350px] overflow-y-auto space-y-2 text-white m-2 border rounded">
+            <div className="flex-1  overflow-y-auto space-y-2 text-white mr-2 ml-2 border rounded">
                 {query && tracks.map(track => (
                     <li key={track.id} 
                         onClick={async () => { await copyTrackId(track.id) }}
