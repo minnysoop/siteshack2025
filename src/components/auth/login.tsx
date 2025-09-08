@@ -74,15 +74,19 @@ export default function LoginButton() {
 
     useEffect(() => {
       const run = async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get("code");
-        
-        if (code) {
-          const user_access_token = await getToken(code);
-          setAccessToken(user_access_token)
-        }
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const code = urlParams.get("code");
+          
+          if (code) {
+            const user_access_token = await getToken(code);
+            setAccessToken(user_access_token)
+          }
 
-        window.history.replaceState({}, document.title, window.location.pathname);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (err) {
+          console.error("Error during token exchange:", err);
+        }
       };
 
       run();

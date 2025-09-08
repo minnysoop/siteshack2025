@@ -14,7 +14,10 @@ export default function UserPlaylistView() {
     useEffect(() => {
 
         const fetchUserPlaylists = async () => {
-            if (!access_token) return
+            if (!access_token) {
+                setPlaylists([])
+                return;
+            }
             try {
                 const response = await axios.get<{ items: Playlist[] }>(
                     `https://api.spotify.com/v1/users/${userid}/playlists`,
