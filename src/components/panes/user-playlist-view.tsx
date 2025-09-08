@@ -1,4 +1,5 @@
 import { AuthContext } from "@/providers/auth-provider"
+import { OutputContext } from "@/providers/output-provider";
 import { useContext, useState, useEffect } from "react"
 import { Playlist } from "@/types/playlist";
 import { Track } from "@/types/track";
@@ -10,6 +11,8 @@ export default function UserPlaylistView() {
     const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
     const [tracks, setTracks] = useState<Track[] | null>(null); 
     const [error, setError] = useState<string | null>(null);
+
+    const { refresh } = useContext(OutputContext)
 
     useEffect(() => {
 
@@ -38,7 +41,7 @@ export default function UserPlaylistView() {
 
 
         fetchUserPlaylists();
-    }, [access_token, userid]);
+    }, [refresh, access_token, userid]);
 
     const fetchPlaylistTracks = async (playlistId: string) => {
         if (!access_token) return;

@@ -9,6 +9,7 @@ import UserPlaylistView from "@/components/panes/user-playlist-view"
 import LogoutButton from '@/components/auth/logout'
 
 import {AuthContext} from "@/providers/auth-provider";
+import { OutputProvider } from "@/providers/output-provider"
 
 import { useContext } from 'react'
 
@@ -28,6 +29,7 @@ export default function Home() {
             <div className="max-h-[400px]">
               <SearchArea />
             </div>
+            <OutputProvider>
             <div className="border border-[#1E1E1E] rounded-lg bg-[#1E1E1E] mr-10 mt-2">
               <div className="max-h-[400px]">
                 <CodeEditor />
@@ -41,6 +43,7 @@ export default function Home() {
                 <OutputPlaylist />
               </div>
             </div>
+            </OutputProvider>
           </div>
         </div>
     </>

@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useContext } from "react"
 import Editor from "@monaco-editor/react"
 import { Play } from "lucide-react"
+import { OutputContext } from "@/providers/output-provider"
 
 export default function CodeEditor() {
-    const [code, setCode] = useState("// Write your code here\n")
+    const [tmpCode, setTmpCode] = useState("")
+    const { code, executeCode} = useContext(OutputContext)
 
     const execute = () => {
-        console.log("hello")
+        executeCode(tmpCode)
     }
 
     return (
@@ -22,8 +24,8 @@ export default function CodeEditor() {
                 <Editor
                     height="355px"
                     theme="vs-dark"
-                    value={code}
-                    onChange={(value) => setCode(value || "")}
+                    value={tmpCode}
+                    onChange={(value) => setTmpCode(value || "")}
                 />
             </div>
         </>

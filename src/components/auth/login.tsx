@@ -54,7 +54,7 @@ export default function LoginButton() {
         throw new Error("Spotify client ID or redirect URI is not defined");
     }
 
-    const scope = 'user-read-private user-read-email';
+    const scope = 'user-read-private user-read-email playlist-modify-private playlist-modify-public';
     const authUrl = new URL("https://accounts.spotify.com/authorize") 
 
     window.localStorage.setItem('code_verifier', codeVerifier);
