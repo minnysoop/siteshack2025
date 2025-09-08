@@ -8,7 +8,7 @@ export default function UserPlaylistView() {
     const { access_token, userid } = useContext(AuthContext)
     const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
     const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
-    const [tracks, setTracks] = useState<Track[] | null>(null);
+    const [tracks, setTracks] = useState<Track[] | null>(null); 
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
