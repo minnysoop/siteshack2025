@@ -6,6 +6,7 @@ export default function LogoutButton() {
 
     const logout = () => {
         setAccessToken(undefined)
+        localStorage.removeItem('code_verifier')
         localStorage.removeItem('access_token');
     }
 
