@@ -12,6 +12,12 @@ export default function Search() {
     const [tracks, setTracks] = useState<Track[]>([])
     const [error, setError] = useState("")
     const { access_token } = useContext(AuthContext)
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+    const showToast = (message: string) => {
+        setToastMessage(message);
+        setTimeout(() => setToastMessage(null), 3000); // hide after 3 seconds
+    };
 
     useEffect(() => {
         const retrieveSearchedTracks = async () => {
@@ -47,10 +53,17 @@ export default function Search() {
 
     const copyTrackId = async (id: string) => {
         await navigator.clipboard.writeText(id);
+        showToast(`Track ID copied!`);
     }
 
     return (
         <div className="flex flex-col h-full">
+            {toastMessage && (
+                <div className="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg animate-slide-in">
+                    {toastMessage}
+                </div>
+            )}
+            
             <div className="relative sticky p-2">
                 <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-white" size={18} />
                 <input
@@ -66,7 +79,7 @@ export default function Search() {
             <div className="flex-1  overflow-y-auto space-y-2 text-white mr-2 ml-2 border rounded">
                 {query && tracks.map(track => (
                     <li key={track.id} 
-                        onClick={async () => { await copyTrackId(track.id) }}
+                        onClick={async () => { await copyTrackId(track.uri) }}
                         className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 hover:text-black hover:opacity-80 cursor-pointer"
                     >
                         {track.album.images[0] && (

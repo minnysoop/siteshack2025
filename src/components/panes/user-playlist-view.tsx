@@ -9,15 +9,21 @@ export default function UserPlaylistView() {
     const { access_token, userid } = useContext(AuthContext)
     const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
     const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
-    const [tracks, setTracks] = useState<Track[] | null>(null); 
+    const [tracks, setTracks] = useState<Track[] | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     const { refresh } = useContext(OutputContext)
+
+    const showToast = (message: string) => {
+        setToastMessage(message);
+        setTimeout(() => setToastMessage(null), 3000); // hide after 3 seconds
+    };
 
     useEffect(() => {
 
         const fetchUserPlaylists = async () => {
-            if (!access_token) {
+            if (!access_token || !userid) {
                 setPlaylists([])
                 return;
             }
@@ -68,14 +74,26 @@ export default function UserPlaylistView() {
         setTracks(null);
     };
 
+    const copyPlaylistID = async () => {
+        if (!selectedPlaylist) return;
+        await navigator.clipboard.writeText(selectedPlaylist.id);
+        showToast(`Playlist ID copied!`);
+    };
+
     const copyTrackId = async (id: string) => {
         await navigator.clipboard.writeText(id);
+        showToast(`Track ID copied!`);
     }
 
     if (error) return <div>Error: {error}</div>;
 
     return (
         <div className="flex-1 overflow-y-auto space-y-2 text-white">
+            {toastMessage && (
+                <div className="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg animate-slide-in">
+                    {toastMessage}
+                </div>
+            )}
             {!selectedPlaylist ? (
                 <ul className="text-white shadow-lg space-y-3">
                     {playlists?.map((playlist) => (
@@ -100,6 +118,12 @@ export default function UserPlaylistView() {
                         onClick={handleBack}
                     >
                         ← Back to All Playlists
+                    </button>
+                    <button
+                        className="mb-4 px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+                        onClick={copyPlaylistID}
+                    >
+                        Copy ID to clipboard
                     </button>
                     <h2 className="text-xl font-bold mb-2">Title: {selectedPlaylist.name}</h2>
                     {tracks ? (

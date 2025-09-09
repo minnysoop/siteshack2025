@@ -7,6 +7,14 @@ interface OutputPlaylist {
     tracks: Track[] | []
 }
 
+interface SpotifyURI {
+    "uri": string
+}
+
+function toSpotifyURIArray(uris: string[]): SpotifyURI[] {
+    return uris.map(uri => ({ uri }));
+}
+
 export class SpQL {
     access_token: string;
     userid: string;
@@ -20,7 +28,10 @@ export class SpQL {
 
     async run(): Promise<OutputPlaylist> {
         console.log(this.access_token)
-        const response = await this.createPlaylist("ahh")
+        
+        const newPlaylist = await this.createPlaylist("oof")
+        const response = await this.addTracksToPlaylist(newPlaylist.id, [this.code])
+        await this.removeTracksFromPlaylist(newPlaylist.id, [this.code])
 
         return {
             playlist: undefined,
@@ -58,23 +69,126 @@ export class SpQL {
         }
     }
 
-    deletePlaylist(): void {
+    async removeTracksFromPlaylist(playlist_id: string, tracks: string[]) {
+        if (!this.access_token) {
+            throw new Error("No access token available");
+        }
+
+        const t = toSpotifyURIArray(tracks)
+
+        try {
+            const response = await axios.delete(
+                `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${this.access_token}`,
+                        "Content-Type": "application/json"
+                    },
+                    data: {
+                        "tracks": t
+                    }
+                }
+            );
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                throw new Error(err.message);
+            } else {
+                throw new Error("An unexpected error occurred");
+            }
+        }
+    }
+
+    async addTracksToPlaylist(playlist_id: string, uris: string[]) {
+        if (!this.access_token) {
+            throw new Error("No access token available");
+        }
+
+        try {
+            const response = await axios.post(
+                `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`,
+                {
+                    uris: uris,
+                    position: 0
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${this.access_token}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                throw new Error(err.message);
+            } else {
+                throw new Error("An unexpected error occurred");
+            }
+        }
 
     }
 
-    addTracksToPlaylist(): void {
+    async getAllTracksFromPlaylist(playlist_id: string) {
+        if (!this.access_token) {
+            throw new Error("No access token available");
+        }
+
+        let allURIs: any[] = [];
+        let url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks?limit=100`;
+
+        try {
+            while (url) {
+                const response = await axios.get(url, {
+                    headers: {
+                        "Authorization": `Bearer ${this.access_token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                allURIs.push(...response.data.items);
+                url = response.data.next;
+            }
+            return allURIs;
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                throw new Error(err.message);
+            } else {
+                throw new Error("An unexpected error occurred");
+            }
+        }
 
     }
 
-    removeTracksFromPlaylist(): void {
+    async playlistUnion(title: string, p1: string, p2: string) {
+        const newPlaylist = await this.createPlaylist(title)
+        const tracks1 = await this.getAllTracksFromPlaylist(p1);
+        const tracks2 = await this.getAllTracksFromPlaylist(p2);
 
+        const trackURIs = Array.from(new Set([
+            ...tracks1.map((t: any) => t.track.uri),
+            ...tracks2.map((t: any) => t.track.uri)
+        ]));
+
+        for (let i = 0; i < trackURIs.length; i += 100) {
+            const batch = trackURIs.slice(i, i + 100);
+            await this.addTracksToPlaylist(newPlaylist.id, batch)
+        }
+        return newPlaylist
     }
 
-    playlistUnion(): void {
+    async playlistIntersection(title: string, p1: string, p2: string) {
+        const newPlaylist = await this.createPlaylist(title)
+        const tracks1 = await this.getAllTracksFromPlaylist(p1);
+        const tracks2 = await this.getAllTracksFromPlaylist(p2);
 
-    }
+        const uris1 = tracks1.map((item: any) => item.track.uri)
+        const uris2 = tracks2.map((item: any) => item.track.uri)
 
-    playlistIntersection(): void {
+        const intersectionURIs = uris1.filter(uri => uris2.includes(uri));
+        if (intersectionURIs.length === 0) return newPlaylist;
 
+        for (let i = 0; i < intersectionURIs.length; i += 100) {
+            const batch = intersectionURIs.slice(i, i + 100);
+            await this.addTracksToPlaylist(newPlaylist.id, batch)
+        }
+        return newPlaylist
     }
 }
