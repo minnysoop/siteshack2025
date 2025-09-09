@@ -17,7 +17,7 @@ export default function UserPlaylistView() {
 
     const showToast = (message: string) => {
         setToastMessage(message);
-        setTimeout(() => setToastMessage(null), 3000); // hide after 3 seconds
+        setTimeout(() => setToastMessage(null), 3000);
     };
 
     useEffect(() => {
@@ -130,7 +130,7 @@ export default function UserPlaylistView() {
                         <ul className="space-y-2">
                             {tracks.map(track => (
                                 <li key={track.id}
-                                    onClick={async () => { await copyTrackId(track.id) }}
+                                    onClick={async () => { await copyTrackId(track.uri) }}
                                     className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 hover:text-black hover:opacity-80 cursor-pointer"
                                 >
                                     {track.album.images[0] && (

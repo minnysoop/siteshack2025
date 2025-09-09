@@ -7,7 +7,7 @@ import { OutputContext } from "@/providers/output-provider"
 
 export default function CodeEditor() {
     const [tmpCode, setTmpCode] = useState("")
-    const { code, executeCode} = useContext(OutputContext)
+    const { executeCode} = useContext(OutputContext)
 
     const execute = () => {
         executeCode(tmpCode)

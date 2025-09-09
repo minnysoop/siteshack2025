@@ -1,11 +1,5 @@
 import axios from 'axios'
 import { Playlist } from '@/types/playlist';
-import { Track } from '@/types/track';
-
-interface OutputPlaylist {
-    playlist: Playlist | undefined,
-    tracks: Track[] | []
-}
 
 interface SpotifyURI {
     "uri": string
@@ -26,17 +20,14 @@ export class SpQL {
         this.userid = userid
     }
 
-    async run(): Promise<OutputPlaylist> {
+    async run(): Promise<Playlist> {
         console.log(this.access_token)
         
         const newPlaylist = await this.createPlaylist("oof")
         const response = await this.addTracksToPlaylist(newPlaylist.id, [this.code])
-        await this.removeTracksFromPlaylist(newPlaylist.id, [this.code])
+        
 
-        return {
-            playlist: undefined,
-            tracks: []
-        }
+        return newPlaylist
     }
 
     async createPlaylist(title: string) {

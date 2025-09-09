@@ -25,8 +25,13 @@ export function OutputProvider({ children }: { children: ReactNode }) {
     const executeCode = async (user_code: string) => {
         try {
             const code_runner = new SpQL((access_token ? access_token : ""), user_code, (userid ? userid : ""))
-            await code_runner.run()
+            const new_playlist = await code_runner.run()
             setRefresh(refresh + 1)
+            setPlaylist({
+                id: new_playlist.id,
+                name: new_playlist.name
+            })
+            if (playlist) console.log(playlist.name)
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 setError(err.message);
