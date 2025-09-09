@@ -9,34 +9,64 @@ interface OutputPlaylist {
 
 export class SpQL {
     access_token: string;
+    userid: string;
     code: string;
 
-    constructor(access_token: string, code: string) {
+    constructor(access_token: string, code: string, userid: string) {
         this.access_token = access_token
         this.code = code;
+        this.userid = userid
     }
 
     async run(): Promise<OutputPlaylist> {
-        console.log(this.code)
+        console.log(this.access_token)
+        const response = await this.createPlaylist("ahh")
+
         return {
-            playlist: undefined, 
+            playlist: undefined,
             tracks: []
         }
     }
 
-    createPlaylist(): void {
+    async createPlaylist(title: string) {
+        if (!this.access_token) {
+            throw new Error("No access token available")
+        }
 
+        try {
+            const response = await axios.post(
+                `https://api.spotify.com/v1/users/${this.userid}/playlists`,
+                {
+                    name: title,
+                    description: "",
+                    public: true
+                },
+                {
+                    headers: {
+                        "Authorization": `Bearer ${this.access_token}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
+            return response.data
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                throw new Error(err.message)
+            } else {
+                throw new Error("An unexpected error occurred")
+            }
+        }
     }
 
     deletePlaylist(): void {
 
     }
 
-    addTracksToPlaylist() : void {
+    addTracksToPlaylist(): void {
 
     }
 
-    removeTracksFromPlaylist() : void {
+    removeTracksFromPlaylist(): void {
 
     }
 
@@ -48,41 +78,3 @@ export class SpQL {
 
     }
 }
-
-// const createSpotifyPlaylist = async () => {
-//             if (!access_token) {
-//                 console.error("No access token available");
-//                 return;
-//             }
-
-//             try {
-//                 const response = await fetch(
-//                     `https://api.spotify.com/v1/users/${userid}/playlists`,
-//                     {
-//                         method: "POST",
-//                         headers: {
-//                             "Authorization": `Bearer ${access_token}`,
-//                             "Content-Type": "application/json"
-//                         },
-//                         body: JSON.stringify({
-//                             name: "Hello World",
-//                             description: "Created from app",
-//                             public: true
-//                         })
-//                     }
-//                 );
-
-//                 if (!response.ok) {
-//                     const errorData = await response.json();
-//                     console.error("Error creating playlist:", errorData);
-//                     return;
-//                 }
-
-//                 const data = await response.json();
-//                 console.log("Created playlist:", data);
-//                 setRefresh(refresh + 1)
-
-//             } catch (err) {
-//                 console.error("Failed to create playlist:", err);
-//             }
-//         }
