@@ -96,9 +96,9 @@ export default function UserPlaylistView() {
             )}
             {!selectedPlaylist ? (
                 <ul className="text-white shadow-lg space-y-3">
-                    {playlists?.map((playlist) => (
+                    {playlists?.map((playlist, index) => (
                         <li
-                            key={playlist.id}
+                            key={index}
                             className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 hover:text-black hover:opacity-80 cursor-pointer w-full"
                             onClick={() => handlePlaylistClick(playlist)}
                         >
@@ -128,8 +128,8 @@ export default function UserPlaylistView() {
                     <h2 className="text-xl font-bold mb-2">Title: {selectedPlaylist.name}</h2>
                     {tracks ? (
                         <ul className="space-y-2">
-                            {tracks.map(track => (
-                                <li key={track.id}
+                            {tracks.map((track, index) => (
+                                <li key={index}
                                     onClick={async () => { await copyTrackId(track.uri) }}
                                     className="flex items-center space-x-3 p-2 rounded hover:bg-gray-100 hover:text-black hover:opacity-80 cursor-pointer"
                                 >

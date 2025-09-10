@@ -7,5 +7,6 @@ export interface OutputType {
     error: string,
     executeCode: (code: string) => void,
     refresh: number,
-    setRefresh: (value: number) => void
+    setRefresh: (value: number) => void,
+    response: string[]
 }

@@ -12,7 +12,8 @@ export const OutputContext = createContext<OutputType>({
     error: "",
     executeCode: () => { },
     refresh: 0,
-    setRefresh: () => { }
+    setRefresh: () => { },
+    response: []
 })
 
 export function OutputProvider({ children }: { children: ReactNode }) {
@@ -21,28 +22,26 @@ export function OutputProvider({ children }: { children: ReactNode }) {
     const [error, setError] = useState<string>("")
     const [refresh, setRefresh] = useState<number>(0)
     const { access_token, userid } = useContext(AuthContext)
+    const [ response, setResponse ] = useState<string[]>([])
 
     const executeCode = async (user_code: string) => {
         try {
             const code_runner = new SpQL((access_token ? access_token : ""), user_code, (userid ? userid : ""))
-            const new_playlist = await code_runner.run()
+            const response = await code_runner.run()
             setRefresh(refresh + 1)
-            setPlaylist({
-                id: new_playlist.id,
-                name: new_playlist.name
-            })
-            if (playlist) console.log(playlist.name)
+            setResponse(response.res)
+            setError(response.error)
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 setError(err.message);
             } else {
-                setError("An unexpected error occurred");
+                setError(error);
             }
         }
     }
 
     return (
-        <OutputContext.Provider value={{ playlist, code, error, executeCode, refresh, setRefresh }}>
+        <OutputContext.Provider value={{ playlist, code, error, executeCode, refresh, setRefresh, response }}>
             {children}
         </OutputContext.Provider>
     );

@@ -5,6 +5,12 @@ interface SpotifyURI {
     "uri": string
 }
 
+interface Output {
+    res: string[],
+    error: string
+}
+
+
 function toSpotifyURIArray(uris: string[]): SpotifyURI[] {
     return uris.map(uri => ({ uri }));
 }
@@ -20,19 +26,163 @@ export class SpQL {
         this.userid = userid
     }
 
-    async run(): Promise<Playlist> {
-        console.log(this.access_token)
-        
-        const newPlaylist = await this.createPlaylist("oof")
-        const response = await this.addTracksToPlaylist(newPlaylist.id, [
-            'spotify:track:1CPZ5BxNNd0n0nF4Orb9JS',
-            'spotify:track:1j15Ar0qGDzIR0v3CQv3JL',
-            'spotify:track:0WbMK4wrZ1wFSty9F7FCgu',
-            'spotify:track:0d28khcov6AiegSCpG5TuT',
-            'spotify:track:08bNPGLD8AhKpnnERrAc6G'
-        ])
+    async run(): Promise<Output> {
+        const rawLines = this.code.split("\n").map(line => line.trim());
 
-        return newPlaylist
+        const lines = this.code.split(";").map(line => line.trim()).filter(line => line.length > 0);
+
+        let current_error = ""
+        const executions: string[] = []
+        for (let i = 0; i < rawLines.length; i++) {
+            const line = rawLines[i];
+            if (line.length > 0 && !line.endsWith(";")) {
+                current_error = `Missing semicolon on line ${i + 1}: "${line}"`;
+                return { res: executions, error: current_error };
+            }
+        }
+
+        const mapping: Record<string, string> = {};
+        const existingPlaylists = await this.getAllPlaylists();
+        let memory: Set<string> = new Set(existingPlaylists);
+
+        try {
+            for (let i = 0; i < lines.length; i++) {
+                const current_line = lines[i]
+                if (current_line.startsWith("CREATE PLAYLIST")) {
+                    const match = current_line.match(/CREATE PLAYLIST "(.+)" STORE "(.+)"/);
+                    if (!match) {
+                        throw new Error(`Error on line ${i + 1}`)
+                    }
+                    const new_title = match[1].trim()
+                    const store_name = match[2].trim();
+                    const newPlaylist = await this.createPlaylist(new_title);
+                    mapping[store_name] = newPlaylist.id;
+                    memory.add(newPlaylist.id);
+                    executions.push(`Successfully created playlist ${new_title}`)
+
+                } else if (current_line.startsWith("ADD TRACKS")) {
+                    const match = current_line.match(/ADD TRACKS (\[.+\]) TO "(.+)"/);
+                    if (!match) {
+                        throw new Error(`Error on line ${i + 1}`)
+                    }
+                    const tracks = JSON.parse(match[1]);
+                    const playlist_id = mapping[match[2].trim()] ?? match[2].trim();
+                    if (memory.has(playlist_id)) {
+                        await this.addTracksToPlaylist(playlist_id, tracks)
+                        executions.push(`Successfully added tracks to playlist id: ${playlist_id}`)
+                    } else { throw new Error(`Error on line ${i + 1}`) }
+
+                } else if (current_line.startsWith("ADD TRACK")) {
+                    const match = current_line.match(/ADD TRACK "(.+)" TO "(.+)"/);
+                    if (!match) {
+                        throw new Error(`Error on line ${i + 1}`)
+                    }
+                    const tracks = [match[1].trim()];
+                    const playlist_id = mapping[match[2].trim()] ?? match[2].trim();
+                    if (memory.has(playlist_id)) {
+                        await this.addTracksToPlaylist(playlist_id, tracks)
+                        executions.push(`Successfully added a track to playlist id: ${playlist_id}`)
+                    } else { throw new Error(`Error on line ${i + 1}`) }
+
+                } else if (current_line.startsWith("REMOVE TRACKS")) {
+                    const match = current_line.match(/REMOVE TRACKS (\[.+\]) FROM "(.+)"/);
+                    if (!match) {
+                        throw new Error(`Error on line ${i + 1}`)
+                    }
+                    const tracks = JSON.parse(match[1]);
+                    const playlist_id = mapping[match[2].trim()] ?? match[2].trim();
+                    if (memory.has(playlist_id)) {
+                        await this.removeTracksFromPlaylist(playlist_id, tracks)
+                        executions.push(`Successfully removed tracks to playlist id: ${playlist_id}`)
+                    } else { throw new Error(`Error on line ${i + 1}`) }
+
+
+
+                } else if (current_line.startsWith("REMOVE TRACK")) {
+                    const match = current_line.match(/REMOVE TRACK "(.+)" FROM "(.+)"/);
+                    if (!match) {
+                        throw new Error(`Error on line ${i + 1}`)
+                    }
+                    const tracks = [match[1]];
+                    const playlist_id = mapping[match[2].trim()] ?? match[2].trim();
+                    if (memory.has(playlist_id)) {
+                        await this.removeTracksFromPlaylist(playlist_id, tracks)
+                        executions.push(`Successfully removed a track to playlist id: ${playlist_id}`)
+                    } else { throw new Error(`Error on line ${i + 1}`) }
+
+
+                } else if (current_line.startsWith("UNION")) {
+                    const match = current_line.match(/UNION "(.+)" WITH "(.+)" AS "(.+)"/);
+                    if (!match) {
+                        throw new Error(`Error on line ${i + 1}`)
+                    }
+                    const p1 = mapping[match[1].trim()] ?? match[1].trim();
+                    const p2 = mapping[match[2].trim()] ?? match[2].trim();
+                    const new_name = match[3].trim()
+                    if (memory.has(p1) && memory.has(p2)) {
+                        const newPlaylist = await this.playlistUnion(p1, p2, new_name)
+                        memory.add(newPlaylist.id);
+                        mapping[new_name] = newPlaylist.id;
+                        executions.push(`Successfully unioned playlist with ids ${p1} and ${p2} to make ${new_name}`)
+                    } else { throw new Error(`Error on line ${i + 1}`) }
+
+
+                } else if (current_line.startsWith("INTERSECT")) {
+                    const match = current_line.match(/INTERSECT "(.+)" WITH "(.+)" AS "(.+)"/);
+                    if (!match) {
+                        throw new Error(`Error on line ${i + 1}`)
+                    }
+                    const p1 = mapping[match[1].trim()] ?? match[1].trim();
+                    const p2 = mapping[match[2].trim()] ?? match[2].trim();
+                    const new_name = match[3].trim()
+                    if (memory.has(p1) && memory.has(p2)) {
+                        const newPlaylist = await this.playlistIntersection(p1, p2, new_name)
+                        memory.add(newPlaylist.id);
+                        mapping[new_name] = newPlaylist.id;
+                        executions.push(`Successfully intersected playlist with ids ${p1} and ${p2} to make ${new_name}`)
+                    } else { throw new Error(`Error on line ${i + 1}`) }
+
+                } else {
+                    throw new Error(`Error on line ${i + 1}`)
+                }
+            }
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                current_error = err.message;
+            } else {
+                current_error = "Unknown error occurred";
+            }
+        }
+
+        return {
+            res: executions,
+            error: current_error
+        }
+    }
+
+    async getAllPlaylists() {
+        if (!this.access_token || !this.userid) {
+            return [];
+        }
+        try {
+            const response = await axios.get<{ items: Playlist[] }>(
+                `https://api.spotify.com/v1/users/${this.userid}/playlists`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${this.access_token}`
+                    },
+                })
+
+            const result = response.data.items.map((playlist) => playlist.id)
+            return result
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                console.log(err.message);
+            } else {
+                console.log("An unexpected error occurred");
+            }
+            return [];
+        }
     }
 
     async createPlaylist(title: string) {

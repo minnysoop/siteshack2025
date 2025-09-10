@@ -7,7 +7,7 @@ import { OutputContext } from "@/providers/output-provider"
 
 export default function CodeEditor() {
     const [tmpCode, setTmpCode] = useState("")
-    const { executeCode} = useContext(OutputContext)
+    const { executeCode } = useContext(OutputContext)
 
     const execute = () => {
         executeCode(tmpCode)
@@ -26,6 +26,10 @@ export default function CodeEditor() {
                     theme="vs-dark"
                     value={tmpCode}
                     onChange={(value) => setTmpCode(value || "")}
+                    options={{
+                        wordWrap: "on",
+                        minimap: { enabled: false },
+                    }}
                 />
             </div>
         </>
