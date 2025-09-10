@@ -103,7 +103,7 @@ export class SpQL {
                     if (!match) {
                         throw new Error(`Error on line ${i + 1}`)
                     }
-                    const tracks = [match[1]];
+                    const tracks = [match[1].trim()];
                     const playlist_id = mapping[match[2].trim()] ?? match[2].trim();
                     if (memory.has(playlist_id)) {
                         await this.removeTracksFromPlaylist(playlist_id, tracks)
@@ -120,7 +120,7 @@ export class SpQL {
                     const p2 = mapping[match[2].trim()] ?? match[2].trim();
                     const new_name = match[3].trim()
                     if (memory.has(p1) && memory.has(p2)) {
-                        const newPlaylist = await this.playlistUnion(p1, p2, new_name)
+                        const newPlaylist = await this.playlistUnion(new_name, p1, p2)
                         memory.add(newPlaylist.id);
                         mapping[new_name] = newPlaylist.id;
                         executions.push(`Successfully unioned playlist with ids ${p1} and ${p2} to make ${new_name}`)
@@ -136,7 +136,7 @@ export class SpQL {
                     const p2 = mapping[match[2].trim()] ?? match[2].trim();
                     const new_name = match[3].trim()
                     if (memory.has(p1) && memory.has(p2)) {
-                        const newPlaylist = await this.playlistIntersection(p1, p2, new_name)
+                        const newPlaylist = await this.playlistIntersection(new_name, p1, p2)
                         memory.add(newPlaylist.id);
                         mapping[new_name] = newPlaylist.id;
                         executions.push(`Successfully intersected playlist with ids ${p1} and ${p2} to make ${new_name}`)
@@ -308,14 +308,17 @@ export class SpQL {
         const tracks1 = await this.getAllTracksFromPlaylist(p1);
         const tracks2 = await this.getAllTracksFromPlaylist(p2);
 
-        const trackURIs = Array.from(new Set([
+        const unionURIs: string[] = Array.from(new Set([
             ...tracks1.map((t: any) => t.track.uri),
             ...tracks2.map((t: any) => t.track.uri)
         ]));
 
-        for (let i = 0; i < trackURIs.length; i += 100) {
-            const batch = trackURIs.slice(i, i + 100);
-            await this.addTracksToPlaylist(newPlaylist.id, batch)
+        if (unionURIs.length == 0) return newPlaylist;
+        for (let i = 0; i < unionURIs.length; i += 100) {
+            const batch = unionURIs.slice(i, i + 100);
+            if (batch.length > 0) {
+                await this.addTracksToPlaylist(newPlaylist.id, batch);
+            }
         }
         return newPlaylist
     }
@@ -329,11 +332,13 @@ export class SpQL {
         const uris2 = tracks2.map((item: any) => item.track.uri)
 
         const intersectionURIs = uris1.filter(uri => uris2.includes(uri));
-        if (intersectionURIs.length === 0) return newPlaylist;
+        if (intersectionURIs.length == 0) return newPlaylist;
 
         for (let i = 0; i < intersectionURIs.length; i += 100) {
             const batch = intersectionURIs.slice(i, i + 100);
-            await this.addTracksToPlaylist(newPlaylist.id, batch)
+            if (batch.length > 0) {
+                await this.addTracksToPlaylist(newPlaylist.id, batch);
+            }
         }
         return newPlaylist
     }
