@@ -13,6 +13,7 @@ I developed the entire application using next.js and react.js alongside the Spot
 
 ### Result
 ![](demo.gif)
+
 This is the interface in which the client interacts with. On the top left pane, we have a search functionality where users can search for songs that they like. The bottom left pane contains the user's playlist. The top right pane contains the code editor where users can write their programs to modify their playlists. The bottom left pane contains the response as a result of executing this programs. 
 
 Some other features include:
