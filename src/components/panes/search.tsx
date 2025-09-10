@@ -73,7 +73,6 @@ export default function Search() {
                     placeholder="Search..."
                     className="w-full pl-10 border border-gray-300 rounded p-2"
                 />
-                {error && <p className="text-red-500 mt-1">{error}</p>}
             </div>
 
             <div className="flex-1  overflow-y-auto space-y-2 text-white mr-2 ml-2 border rounded">
