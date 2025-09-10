@@ -18,7 +18,6 @@ export default function CodeEditor() {
         } finally {
             setLoading(false)
         }
-        executeCode(tmpCode)
     }
 
     const exportCode = () => {
