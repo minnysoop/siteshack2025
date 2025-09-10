@@ -1,4 +1,7 @@
 ## SpQL Workbench
+### Disclaimer
+I realized that the Spotify API only allows requests from those who are on the developers list as per [this site](https://developer.spotify.com/documentation/web-api/concepts/quota-modes). Unfortuantely, I realized this way too late before I can change my entire idea. I still chose to submit it because if the user just follows this instructions [here](https://developer.spotify.com/documentation/web-api/tutorials/getting-started). And creating a `.env` file with their credentials and stick in the app and run `npm run dev`, the application will work perfectly. I'm just... not a company so I can't get my application approved, but it's still a neat idea.
+
 ### Situation
 I created SpQL or, in other words, Spotify Query Language because I wanted to find a new way to create and edit Spotify playlists. I found that trying to mass update a playlist on Spotify requires a lot of dragging dropping. However, making this mass update programmatically is easier on the fingers and can also be fun. 
 
