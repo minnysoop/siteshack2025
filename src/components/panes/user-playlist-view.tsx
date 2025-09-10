@@ -47,7 +47,7 @@ export default function UserPlaylistView() {
 
 
         fetchUserPlaylists();
-    }, [refresh, access_token, userid]);
+    }, [access_token, refresh, userid]);
 
     const fetchPlaylistTracks = async (playlistId: string) => {
         if (!access_token) return;

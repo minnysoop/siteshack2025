@@ -4,8 +4,9 @@ import { useEffect, useContext } from 'react'
 import { AuthContext } from '@/providers/auth-provider'
 
 async function getToken(code: any) {
-  // stored in the previous step
   const codeVerifier = localStorage.getItem('code_verifier');
+  // stored in the previous step
+  
   if (!codeVerifier) throw new Error("Code verifier not found in localStorage");
 
   const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID
@@ -81,6 +82,7 @@ export default function LoginButton() {
           if (code) {
             const user_access_token = await getToken(code);
             setAccessToken(user_access_token)
+            window.localStorage.removeItem('code_verifier');
           }
 
           window.history.replaceState({}, document.title, window.location.pathname);

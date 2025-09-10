@@ -20,11 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <AuthProvider>
-          <body className={`${poppins.className} bg-black text-white`}>
-            {children}
-          </body>
-      </AuthProvider>
+      <body className={`${poppins.className} bg-black text-white`}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }
