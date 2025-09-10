@@ -8,6 +8,11 @@ export default function OutputPlaylist() {
     const [ output, setOutput ] = useState<string[]>([])
     const [ outputError, setOutputError ] = useState<string>("")
 
+    const clearConsole = () => {
+        setOutput([])
+        setOutputError("")
+    }
+
     useEffect(() => {
         if (!access_token) {
             setOutput([]);
@@ -24,6 +29,13 @@ export default function OutputPlaylist() {
         <div className="bg-black text-green-400 font-mono p-4 rounded-lg shadow-lg">
             <div className="mb-2 text-sm opacity-75">
                 {access_token && displayName ? `${displayName}'s work output` : "User's work output"}
+                <span>  </span>
+                <button
+                    onClick={clearConsole}
+                    className="text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-600"
+                >
+                    Clear
+                </button>
             </div>
 
             {outputError ? (
