@@ -24,8 +24,13 @@ export class SpQL {
         console.log(this.access_token)
         
         const newPlaylist = await this.createPlaylist("oof")
-        const response = await this.addTracksToPlaylist(newPlaylist.id, [this.code])
-        
+        const response = await this.addTracksToPlaylist(newPlaylist.id, [
+            'spotify:track:1CPZ5BxNNd0n0nF4Orb9JS',
+            'spotify:track:1j15Ar0qGDzIR0v3CQv3JL',
+            'spotify:track:0WbMK4wrZ1wFSty9F7FCgu',
+            'spotify:track:0d28khcov6AiegSCpG5TuT',
+            'spotify:track:08bNPGLD8AhKpnnERrAc6G'
+        ])
 
         return newPlaylist
     }

@@ -38,7 +38,7 @@ export default function Home() {
             <div className="mr-2 ml-2 border rounded max-h-[250px] overflow-y-auto">
                 <UserPlaylistView />
             </div>
-            <div className="border rounded-lg mr-10 max-h-[250px]">
+            <div className="border rounded-lg mr-10 max-h-[250px] overflow-y-auto">
               <div>
                 <OutputPlaylist />
               </div>
