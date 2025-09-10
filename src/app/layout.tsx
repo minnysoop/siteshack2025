@@ -8,6 +8,11 @@ const poppins = Poppins({
   display: "swap",
 });
 
+export const metadata = {
+  title: "SpQL Workbench",
+};
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
